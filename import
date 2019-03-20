@@ -1,0 +1,212 @@
+#!/usr/bin/python 
+
+# -*- coding: utf-16 -*-
+from py2neo import Node, Graph, Relationship ,NodeMatcher
+from pandas import DataFrame
+import pymysql
+import os
+
+
+class DataToNeo4j(object):
+    """将excel中数据存入neo4j"""
+
+    def __init__(self):
+        """建立连接"""
+        # link = Graph("http://localhost:7474", username="neo4j", password="neo4j")
+        link = Graph(host='127.0.0.1', auth=('jzy', '19961105'))
+
+        self.graph = link
+        # 定义label
+        self.invoice_name = '公司名称'
+        self.graph.delete_all()
+
+    def create_node(self, node_list):
+        for i in range(0, len(node_list)):
+            name_node = Node(self.invoice_name, name = node_list[i][0], e_type = node_list[i][1])
+            self.graph.create(name_node)
+
+    # def create_node(self, node_list_a, node_list_b, node_list_c, node_list_d):
+    #     """建立节点"""
+    #     for name in node_list_a:
+    #         name_node = Node(self.invoice_name, name=name)
+    #         self.graph.create(name_node)
+    #     for name in node_list_b:
+    #         b_node = Node(self.invoice_b, name=name)
+    #         self.graph.create(b_node)
+    #     for name in node_list_c:
+    #         c_node = Node(self.invoice_c, name=name)
+    #         self.graph.create(c_node)
+    #     for name in node_list_d:
+    #         d_node = Node(self.invoice_d, name=name)
+    #         self.graph.create(d_node)
+
+# NodeMatcher(self.graph).match(self.invoice, name=df_data['name'][m]).first()
+    def create_relation(self, df_data):
+        for m in range(0, len(df_data)):
+            try:
+                # rel = Relationship(self.graph.find_one(label=self.invoice_name, property_key='name', property_value=df_data['name'][m]),
+                # df_data['relation'][m], self.graph.find_one(label=self.invoice_name, property_key='name',property_value=df_data['name2'][m]))
+                # self.graph.create(rel)
+                rel = Relationship(NodeMatcher(self.graph).match(self.invoice_name, name=df_data['name'][m]).first(),
+                df_data['relation'][m], NodeMatcher(self.graph).match(self.invoice_name, name=df_data['name2'][m]).first())
+                self.graph.create(rel)
+            except AttributeError as e:
+                print(e, m)
+    # def create_relation(self, df_data):
+    #     """建立联系"""
+
+    #     m = 0
+    #     for m in range(0, len(df_data)):
+    #         try:
+    #             if df_data['relation'][m] == '发行人':
+    #                 rel = Relationship(self.graph.find_one(label=self.invoice_name, property_key='name', property_value=df_data['name'][m]),
+    #                                df_data['relation'][m], self.graph.find_one(label=self.invoice_b, property_key='name',
+    #                                property_value=df_data['name2'][m]))
+    #             if df_data['relation'][m] == '所属交易所':
+    #                 rel = Relationship(self.graph.find_one(label=self.invoice_name, property_key='name', property_value=df_data['name'][m]),
+    #                                df_data['relation'][m], self.graph.find_one(label=self.invoice_c, property_key='name',
+    #                                property_value=df_data['name2'][m]))
+    #             if df_data['relation'][m] == '信用评级':
+    #                 rel = Relationship(self.graph.find_one(label=self.invoice_name, property_key='name', property_value=df_data['name'][m]),
+    #                                df_data['relation'][m], self.graph.find_one(label=self.invoice_d, property_key='name',
+    #                                property_value=df_data['name2'][m]))
+    #             self.graph.create(rel)
+    #         except AttributeError as e:
+    #             print(e, m)
+
+def data_extraction(invoice_data):
+    node_list_key = []
+    for i in range(0, len(invoice_data)):
+        node_list_key.append(invoice_data[i][0])
+    return node_list_key
+
+# def data_extraction(invoice_data):
+#     """节点数据抽取"""
+
+#     # 取出发票名称到list
+#     node_list_key = []
+#     for i in range(0, len(invoice_data)):
+#         node_list_key.append(invoice_data[i][0])
+
+#     # 去除重复的发票名称
+#     node_list_key = list(set(node_list_key))
+#     # value抽出作node
+#     node_list_ISSUER = []
+#     node_list_EXCHMARKET = []
+#     node_list_RATING = []
+
+#     for i in range(0, len(invoice_data)):
+#             # 取出表头名称invoice_data.columns[i]
+#         node_list_ISSUER.append(invoice_data[i][1])
+#         if invoice_data[i][2] != None:
+#             node_list_EXCHMARKET.append(invoice_data[i][2])
+#         node_list_RATING.append(invoice_data[i][3])
+#     # 去重
+#     node_list_ISSUER = list(set(node_list_ISSUER))
+#     node_list_EXCHMARKET = list(set(node_list_EXCHMARKET))
+#     node_list_RATING = list(set(node_list_RATING))
+#     # 将list中浮点及整数类型全部转成string类型
+#     node_list_ISSUER = [str(i) for i in node_list_ISSUER]
+#     node_list_EXCHMARKET = [str(i) for i in node_list_EXCHMARKET]
+#     node_list_RATING = [str(i) for i in node_list_RATING]
+
+#     return node_list_key, node_list_ISSUER, node_list_EXCHMARKET, node_list_RATING
+
+def relation_extraction(invoice_data):
+    links_dict = {}
+    name_list = []
+    relation_list = []
+    name2_list = []
+    for i in range(0, len(invoice_data)):
+        name_list.append(invoice_data[i][0])
+        relation_list.append('投资')
+        name2_list.append(invoice_data[i][1])
+    # 整合数据，将三个list整合成一个dict
+    links_dict['name'] = name_list
+    links_dict['relation'] = relation_list
+    links_dict['name2'] = name2_list
+    # 将数据转成DataFrame
+    df_data = DataFrame(links_dict)
+    return df_data
+
+# def relation_extraction(invoice_data):
+#     """联系数据抽取"""
+
+#     links_dict = {}
+#     name_list = []
+#     relation_list = []
+#     name2_list = []
+
+#     for i in range(0, len(invoice_data)):
+#         m = 0
+#         name_node = invoice_data[i][m]
+#         while m < 3:
+#             if invoice_data[i][m+1] != None:
+#                 if m == 0:
+#                     relation_list.append('发行人')
+#                 if m == 1:
+#                     relation_list.append('所属交易所')
+#                 if m == 2:
+#                     relation_list.append('信用评级')               
+#                 name2_list.append(invoice_data[i][m+1])
+#                 name_list.append(name_node)
+#             m += 1
+
+#     # 将数据中int类型全部转成string
+#     name_list = [str(i) for i in name_list]
+#     name2_list = [str(i) for i in name2_list]
+
+#     # 整合数据，将三个list整合成一个dict
+#     links_dict['name'] = name_list
+#     links_dict['relation'] = relation_list
+#     links_dict['name2'] = name2_list
+#     # 将数据转成DataFrame
+#     df_data = DataFrame(links_dict)
+#     return df_data
+
+
+# graph = Graph("http://localhost:7474", username="neo4j", password="19961105")
+
+try:
+    # crawl_db_host = 'localhost'
+    # crawl_db_port = 3306
+    # crawl_db_user = 'root'
+    # crawl_db_passwd = '961105'
+    # crawl_db_db = 'rhb_db_test_structure_0105'
+
+    # conn = pymysql.connect(host=crawl_db_host, port=crawl_db_port,
+    #                     user=crawl_db_user, passwd=crawl_db_passwd,
+    #                     db=crawl_db_db, charset='utf8') 
+    # cursor = conn.cursor()
+    conn = pymysql.connect("localhost", "root", "19961105", "project")
+    cursor = conn.cursor()
+except Exception as e:
+    print('Connect crawl_db error')
+    exit()
+
+sql = """SELECT `name`, `enterprise_type` FROM c_client_copy1 """
+try:
+    conn.ping()
+    cursor.execute(sql)
+except Exception as e:
+    print(e)
+    exit()
+result = cursor.fetchall()
+
+sql = """SELECT `c_name`, `name`, `rate` FROM c_investment_copy1 """
+try:
+    conn.ping()
+    cursor.execute(sql)
+except Exception as e:
+    print(e)
+    exit()
+investment_data = cursor.fetchall()
+
+if result:
+    # de = data_extraction(result)
+    re = relation_extraction(investment_data)
+
+    create_data = DataToNeo4j()
+    create_data.create_node(result)
+    create_data.create_relation(re)
+    # exit()
