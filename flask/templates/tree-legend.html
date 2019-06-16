@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+        <ul>
+                <li>
+                  <a href="./pic.html">cytoscape</a>
+                </li>
+                <li>
+                  <a href="./tree-legend.html">tree-legend</a>
+                </li>
+                <li>
+                  <a href="./entrance.html">test</a>
+                </li>
+        </ul>
+        <p>母公司名：<input type="text" id="comp1">
+        <button id="search1">查询</button>
+        子公司名：<input type="text" id="comp2">
+        <button id="search2">查询</button></p>
+        <p>设置母公司名：<input type="text" id="comp11">
+        设置子公司名：<input type="text" id="comp22">
+        <button id="do">确定</button></p>
+       <div id="container" style="height: 100%"></div>
+       <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <!-- <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=xfhhaTThl11qYVrqLZii6w8qE5ggnhrY&__ec_v__=20190126"></script> -->
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+       <script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    var app = {};
+    option = null;
+    myChart.showLoading();
+
+    var data1 = {};
+    var data2 = {};
+    $(document).ready(function(){
+    $("button#search1").click(function () {
+      var child_name = $('#comp1').val();
+      console.log(child_name);
+        $.get('/get_child',{name: child_name} , function(result) {
+            data1 = {
+                "name":child_name,
+                "children":result.data
+            };
+            myChart.hideLoading();
+            myChart.setOption(option = {
+                tooltip: {
+                    trigger: 'item',
+                    triggerOn: 'mousemove'
+                },
+                legend: {
+                    top: '2%',
+                    left: '3%',
+                    orient: 'vertical',
+                    data: [{
+                        name: 'tree1',
+                        icon: 'rectangle'
+                    } ,
+                    {
+                        name: 'tree2',
+                        icon: 'rectangle'
+                    }],
+                    borderColor: '#c23531'
+                },
+                series:[
+                    {
+                        type: 'tree',
+
+                        name: 'tree1',
+
+                        data: [data1],
+
+                        top: '5%',
+                        left: '7%',
+                        bottom: '2%',
+                        right: '70%',
+
+                        symbolSize: 7,
+
+                        label: {
+                            normal: {
+                                position: 'left',
+                                verticalAlign: 'middle',
+                                align: 'right'
+                            }
+                        },
+
+                        leaves: {
+                            label: {
+                                normal: {
+                                    position: 'right',
+                                    verticalAlign: 'middle',
+                                    align: 'left'
+                                }
+                            }
+                        },
+
+                        expandAndCollapse: true,
+                        initialTreeDepth: -1,
+                        animationDuration: 550,
+                        animationDurationUpdate: 750
+
+                    },
+                    {
+                        type: 'tree',
+                        name: 'tree2',
+                        data: [data2],
+
+                        top: '20%',
+                        left: '70%',
+                        bottom: '22%',
+                        right: '10%',
+                        
+                        orient: 'RL',
+                        
+                        symbolSize: 7,
+
+                        label: {
+                            normal: {
+                                position: 'right',
+                                verticalAlign: 'middle',
+                                align: 'left'
+                            }
+                        },
+
+                        leaves: {
+                            label: {
+                                normal: {
+                                    position: 'left',
+                                    verticalAlign: 'middle',
+                                    align: 'right'
+                                }
+                            }
+                        },
+
+                        expandAndCollapse: true,
+                        initialTreeDepth: -1,
+
+                        animationDuration: 550,
+                        animationDurationUpdate: 750
+                    }
+                ]
+            });
+    }, 'json');
+    });   
+    $("button#search2").click(function () {
+      var father_name = $('#comp2').val();
+      console.log(father_name);
+        $.get('/get_father',{name: father_name} , function(result) {
+            data2 = {
+                "name":father_name,
+                "children":result.data
+            };  
+            myChart.hideLoading();
+            myChart.setOption(option = {
+                tooltip: {
+                    trigger: 'item',
+                    triggerOn: 'mousemove'
+                },
+                legend: {
+                    top: '2%',
+                    left: '3%',
+                    orient: 'vertical',
+                    data: [{
+                        name: 'tree1',
+                        icon: 'rectangle'
+                    } ,
+                    {
+                        name: 'tree2',
+                        icon: 'rectangle'
+                    }],
+                    borderColor: '#c23531'
+                },
+                series:[
+                    {
+                        type: 'tree',
+
+                        name: 'tree1',
+
+                        data: [data1],
+
+                        top: '5%',
+                        left: '7%',
+                        bottom: '2%',
+                        right: '70%',
+
+                        symbolSize: 7,
+
+                        label: {
+                            normal: {
+                                position: 'left',
+                                verticalAlign: 'middle',
+                                align: 'right'
+                            }
+                        },
+
+                        leaves: {
+                            label: {
+                                normal: {
+                                    position: 'right',
+                                    verticalAlign: 'middle',
+                                    align: 'left'
+                                }
+                            }
+                        },
+
+                        expandAndCollapse: true,
+                        initialTreeDepth: -1,
+                        animationDuration: 550,
+                        animationDurationUpdate: 750
+
+                    },
+                    {
+                        type: 'tree',
+                        name: 'tree2',
+                        data: [data2],
+
+                        top: '20%',
+                        left: '70%',
+                        bottom: '22%',
+                        right: '10%',
+                        
+                        orient: 'RL',
+                        
+                        symbolSize: 7,
+
+                        label: {
+                            normal: {
+                                position: 'right',
+                                verticalAlign: 'middle',
+                                align: 'left'
+                            }
+                        },
+
+                        leaves: {
+                            label: {
+                                normal: {
+                                    position: 'left',
+                                    verticalAlign: 'middle',
+                                    align: 'right'
+                                }
+                            }
+                        },
+
+                        expandAndCollapse: true,
+                        initialTreeDepth: -1,
+
+                        animationDuration: 550,
+                        animationDurationUpdate: 750
+                    }
+                ]
+            });
+    },'json'); 
+    });   
+    });
+
+myChart.on('dblclick', function (params) {
+    console.log(params);
+
+    console.log(params.seriesName);
+    if (params.seriesName == "tree1"){
+        $.get('/get_child',{name: params.name} , function(result) {
+            if (result.data[0]) {
+                getArray(data1["children"],params.name, result.data);
+                myChart.hideLoading();
+                myChart.setOption(option = {
+                    tooltip: {
+                        trigger: 'item',
+                        triggerOn: 'mousemove'
+                    },
+                    legend: {
+                        top: '2%',
+                        left: '3%',
+                        orient: 'vertical',
+                        data: [{
+                            name: 'tree1',
+                            icon: 'rectangle'
+                        } ,
+                        {
+                            name: 'tree2',
+                            icon: 'rectangle'
+                        }],
+                        borderColor: '#c23531'
+                    },
+                    series:[
+                        {
+                            type: 'tree',
+
+                            name: 'tree1',
+
+                            data: [data1],
+
+                            top: '5%',
+                            left: '7%',
+                            bottom: '2%',
+                            right: '70%',
+
+                            symbolSize: 7,
+
+                            label: {
+                                normal: {
+                                    position: 'left',
+                                    verticalAlign: 'middle',
+                                    align: 'right'
+                                }
+                            },
+
+                            leaves: {
+                                label: {
+                                    normal: {
+                                        position: 'right',
+                                        verticalAlign: 'middle',
+                                        align: 'left'
+                                    }
+                                }
+                            },
+
+                            expandAndCollapse: true,
+                            initialTreeDepth: -1,
+                            animationDuration: 550,
+                            animationDurationUpdate: 750
+
+                        },
+                        {
+                            type: 'tree',
+                            name: 'tree2',
+                            data: [data2],
+
+                            top: '20%',
+                            left: '70%',
+                            bottom: '22%',
+                            right: '10%',
+                            
+                            orient: 'RL',
+                            
+                            symbolSize: 7,
+
+                            label: {
+                                normal: {
+                                    position: 'right',
+                                    verticalAlign: 'middle',
+                                    align: 'left'
+                                }
+                            },
+
+                            leaves: {
+                                label: {
+                                    normal: {
+                                        position: 'left',
+                                        verticalAlign: 'middle',
+                                        align: 'right'
+                                    }
+                                }
+                            },
+
+                            expandAndCollapse: true,
+                            initialTreeDepth: -1,
+
+                            animationDuration: 550,
+                            animationDurationUpdate: 750
+                        }
+                    ]
+                });
+            }
+            else{
+                alert("no data");
+                console.log("no data");
+                }
+    }, 'json');
+    }else if(params.seriesName == "tree2"){
+        $.get('/get_father',{name: params.name} , function(result) {
+            if (result.data[0]) {
+                getArray(data2["children"],params.name, result.data);
+                myChart.hideLoading();
+                myChart.setOption(option = {
+                    tooltip: {
+                        trigger: 'item',
+                        triggerOn: 'mousemove'
+                    },
+                    legend: {
+                        top: '2%',
+                        left: '3%',
+                        orient: 'vertical',
+                        data: [{
+                            name: 'tree1',
+                            icon: 'rectangle'
+                        } ,
+                        {
+                            name: 'tree2',
+                            icon: 'rectangle'
+                        }],
+                        borderColor: '#c23531'
+                    },
+                    series:[
+                        {
+                            type: 'tree',
+
+                            name: 'tree1',
+
+                            data: [data1],
+
+                            top: '5%',
+                            left: '7%',
+                            bottom: '2%',
+                            right: '70%',
+
+                            symbolSize: 7,
+
+                            label: {
+                                normal: {
+                                    position: 'left',
+                                    verticalAlign: 'middle',
+                                    align: 'right'
+                                }
+                            },
+
+                            leaves: {
+                                label: {
+                                    normal: {
+                                        position: 'right',
+                                        verticalAlign: 'middle',
+                                        align: 'left'
+                                    }
+                                }
+                            },
+
+                            expandAndCollapse: true,
+                            initialTreeDepth: -1,
+                            animationDuration: 550,
+                            animationDurationUpdate: 750
+
+                        },
+                        {
+                            type: 'tree',
+                            name: 'tree2',
+                            data: [data2],
+
+                            top: '20%',
+                            left: '70%',
+                            bottom: '22%',
+                            right: '10%',
+                            
+                            orient: 'RL',
+                            
+                            symbolSize: 7,
+
+                            label: {
+                                normal: {
+                                    position: 'right',
+                                    verticalAlign: 'middle',
+                                    align: 'left'
+                                }
+                            },
+
+                            leaves: {
+                                label: {
+                                    normal: {
+                                        position: 'left',
+                                        verticalAlign: 'middle',
+                                        align: 'right'
+                                    }
+                                }
+                            },
+
+                            expandAndCollapse: true,
+                            initialTreeDepth: -1,
+
+                            animationDuration: 550,
+                            animationDurationUpdate: 750
+                        }
+                    ]
+                });
+            }
+            else{
+                alert("no data");
+                console.log("no data");
+                }
+    }, 'json');
+    }
+});
+
+;
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+
+function getArray(data,name, child)
+    {
+        for (var i in data) {
+            // console.log('i',i);
+            // console.log('datai',data[i].children);
+            if (data[i].name == name) {
+                console.log(data[i]);
+                data[i].children = child;
+                // break;
+            } else {
+                getArray(data[i].children, name, child);
+            }
+        }
+    }
+// getArray(data2["children"],'DirtySprite');
+
+       </script>
+   </body>
+</html>

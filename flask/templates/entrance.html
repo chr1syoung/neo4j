@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Learning Cytoscape.js</title>
+  <style type="text/css">
+    /* cytoscape graph */
+    #cy {
+      height: 800px;
+      width: 1400px;
+      background-color: #f9f9f9;
+    }
+  </style>
+  <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+  <script src="http://cdn.bootcss.com/cytoscape/2.3.16/cytoscape.min.js"></script>
+  <script type="text/javascript" src="myscripts.js" charset="UTF-8"></script>
+  <script>
+    $(document).ready(function(){
+    $("button").click(function () {
+      var obj = $('#test').val();
+      var searchUrl = encodeURI("./D3test.html?name="+obj);
+      window.location.href = searchUrl;
+      console.log(obj);
+    });    
+  });    
+
+  </script>
+</head>
+
+<body>
+    <ul>
+        <li>
+          <a href="./pic.html">cytoscape</a>
+        </li>
+        <li>
+          <a href="./tree-legend.html">tree-legend</a>
+        </li>
+        <li>
+          <a href="./entrance.html">test</a>
+        </li>
+      </ul>
+  <p>请输入要查询的公司名：<input type="text" id="test"></p>
+  <button id="search">查询</button>
+</body>
+
+</html>

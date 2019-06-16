@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Learning Cytoscape.js</title>
+  <style type="text/css">
+    /* cytoscape graph */
+    #cy {
+      height: 800px;
+      width: 1400px;
+      background-color: #f9f9f9;
+    }
+  </style>
+  <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+  <script src="http://cdn.bootcss.com/cytoscape/2.3.16/cytoscape.min.js"></script>
+  <script type="text/javascript" src="myscripts.js" charset="UTF-8"></script>
+  <script>
+    // $(function(){
+    //     cytoscape({
+    //       container: document.getElementById('cy'),
+    //       style: [
+    //         { selector: 'node[label = "Person"]', 
+    //           css: {'background-color': '#6FB1FC', 'content': 'data(name)'}
+    //         },
+    //         { selector: 'node[label = "Movie"]', 
+    //           css: {'background-color': '#F5A45D', 'content': 'data(title)'}
+    //         },
+    //         { selector: 'edge', 
+    //           css: {'content': 'data(relationship)', 'target-arrow-shape': 'triangle'}
+    //         }        
+    //       ],
+    //       elements: {
+    //         nodes: [
+    //           {data: {id: '172', name: 'Tom Cruise', label: 'Person'}},
+    //           {data: {id: '183', title: 'Top Gun', label: 'Movie'}}
+    //         ],
+    //         edges: [{data: {source: '172', target: '183', relationship: 'Acted_In'}}]
+    //       },
+    //       layout: { name: 'grid'} 
+    //     });
+    // });
+    // var result={
+    //   "elements": {
+    //     "edges": [
+    //       { "data": { "relationship": "invest", "source": "3ad1d93a9080cc86ffc0e9612717cc0d", "target": "e9a685cf6110ad57622be4b87ac3b3e4" } },
+    //       { "data": { "relationship": "invest", "source": "3ad1d93a9080cc86ffc0e9612717cc0d", "target": "522ace481ef0e9aec083b4c15a6d5d1d" } },
+    //       { "data": { "relationship": "invest", "source": "3ad1d93a9080cc86ffc0e9612717cc0d", "target": "6bd756cc8adf5e1c7854a694f3ecd8bb" } },
+    //       { "data": { "relationship": "invest", "source": "3ad1d93a9080cc86ffc0e9612717cc0d", "target": "9f7681c89fe02210ba63e5516192b535" } },
+
+    //     ],
+    //       "nodes": [
+    //         { "data": { "id": "3ad1d93a9080cc86ffc0e9612717cc0d", "label": "公司名称", "name": "海航集团有限公司" } },
+    //         { "data": { "id": "e9a685cf6110ad57622be4b87ac3b3e4", "label": "公司名称", "name": "海南海航商务服务有限公司" } },
+    //         { "data": { "id": "522ace481ef0e9aec083b4c15a6d5d1d", "label": "公司名称", "name": "海航创新金融有限公司" } },
+    //         { "data": { "id": "6bd756cc8adf5e1c7854a694f3ecd8bb", "label": "公司名称", "name": "海航通航投资有限公司" } },
+    //         { "data": { "id": "9f7681c89fe02210ba63e5516192b535", "label": "公司名称", "name": "海航现代物流集团有限公司" } },
+    //       ]
+    //   }
+    // }
+    $(document).ready(function(){
+    $("button#search").click(function () {
+      var obj = $('#test').val();
+      console.log(obj);
+        $.get('/graph',{name: obj} , function(result) {
+        var style = [
+          { selector: 'node[label = "公司名称"]', css: { 'background-color': '#6FB1FC', 'content':'data(name)' } },
+          { selector: 'node[label = "Movie"]', css: { 'background-color': '#F5A45D', 'content':'data(title)' } },
+          { selector: 'edge', css: {'content': 'data(rate)', 'target-arrow-shape': 'triangle', 'color':'red', 'targetArrowColor':'blue', 'line-color':'green'}}        
+        ];
+      
+        var cy = cytoscape({
+          container: document.getElementById('cy'),
+          charset: 'UTF-8',
+          style: style,
+          layout: { name: 'cose', fit: false },
+          elements: result.elements
+        });
+      }, 'json');
+    });    
+  });    
+
+  </script>
+</head>
+
+<body>
+  <ul>
+    <li>
+      <a href="./pic.html">cytoscape</a>
+    </li>
+    <li>
+      <a href="./tree-legend.html">tree-legend</a>
+    </li>
+    <li>
+      <a href="./entrance.html">test</a>
+    </li>
+  </ul>
+  <p>公司名：<input type="text" id="test"></p>
+  <button id="search">查询</button>
+  <div id="cy"></div>
+</body>
+
+</html>
